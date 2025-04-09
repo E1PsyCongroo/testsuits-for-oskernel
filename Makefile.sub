@@ -14,16 +14,15 @@ endif
 
 all: netperf basic busybox lua libc-test iozone unixbench iperf libcbench lmbench_src cyclictest ltp
 
-
 basic: .PHONY
-	make -C basic/user all CHAPTER=7 ARCH=$(ARCH)
+	make -C basic/user all CHAPTER=7 ARCH=$(ARCH) -j $(NPROC)
 	mkdir -p $(DESTDIR)/basic
 	cp -r basic/user/build/$(ARCH)/* $(DESTDIR)/basic/
 	cp scripts/basic/basic_testcode.sh $(DESTDIR)
 
 busybox: .PHONY
 	cp config/busybox-config-$(ARCH) busybox/.config
-	make -C busybox CC="$(CC) -static" STRIP=$(STRIP) -j
+	make -C busybox CC="$(CC) -static" STRIP=$(STRIP) -j $(NPROC)
 	cp busybox/busybox $(DESTDIR)/
 	cp scripts/busybox/* $(DESTDIR)/
 
@@ -41,7 +40,7 @@ libc-test: .PHONY
 	cp scripts/libctest/libctest_testcode.sh $(DESTDIR)
 
 iozone: .PHONY
-	make -C iozone linux CC="$(CC)" -j 
+	make -C iozone linux CC="$(CC)" -j $(NPROC)
 	$(STRIP) iozone/iozone
 	cp iozone/iozone $(DESTDIR)/
 	cp scripts/iozone/* $(DESTDIR)/
@@ -53,7 +52,7 @@ unixbench: .PHONY
 	cp scripts/unixbench/*.sh $(DESTDIR)/
 
 iperf: .PHONY
-	cd iperf && ./build.sh $(DESTDIR)
+	cd iperf && ./build.sh $(DESTDIR) $(HOST) $(CC)
 	cp scripts/iperf/* $(DESTDIR)/
 
 libcbench: .PHONY
@@ -61,21 +60,21 @@ libcbench: .PHONY
 	$(STRIP) libc-bench/libc-bench
 	cp libc-bench/libc-bench $(DESTDIR)
 	cp scripts/libcbench/* $(DESTDIR)/
-	
+
 lmbench_src: .PHONY
 	make -C lmbench_src CC="$(CC)" -j $(NPROC)
 	find lmbench_src/bin/build -type f -executable -exec cp {} ${DESTDIR}/ \;
 	cp scripts/lmbench/* $(DESTDIR)/
 
 cyclictest:  .PHONY
-	make -C rt-tests-2.7 clean	
+	make -C rt-tests-2.7 clean
 	make -C rt-tests-2.7 CROSS_COMPILE=$(PREFIX)
 	cp rt-tests-2.7/cyclictest ${DESTDIR}/
 	cp rt-tests-2.7/hackbench ${DESTDIR}/
 	cp scripts/cyclictest/* $(DESTDIR)/
 
 ltp: .PHONY
-	cd ltp-full-20240524 && ./build-oscomp.sh $(DESTDIR)
+	cd ltp-full-20240524 && ./build-oscomp.sh $(DESTDIR) $(HOST) $(CC)
 	cp scripts/ltp/* $(DESTDIR)/
 
 netperf: .PHONY
@@ -83,7 +82,7 @@ netperf: .PHONY
 	cd netperf/netperf-2.7.0 && ./configure --build=$(gcc -dumpmachine) --host=$(HOST) && make -j 8
 	cp netperf/netperf-2.7.0/src/netperf ${DESTDIR}/
 	cp netperf/netperf-2.7.0/src/netserver ${DESTDIR}/
-	
+
 clean:
 	make -C basic/user clean
 	make -C busybox clean
@@ -99,4 +98,4 @@ clean:
 	make -C ltp-full-20240524 clean
 	rm -fr netperf/netperf-2.7.0
 
-.PHONY: 
+.PHONY:
