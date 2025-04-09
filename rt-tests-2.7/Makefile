@@ -115,12 +115,12 @@ VPATH	+= src/pmqtest:
 VPATH	+= src/lib:
 VPATH	+= src/hackbench:
 VPATH	+= src/sched_deadline:
-VPATH	+= src/queuelat:	
+VPATH	+= src/queuelat:
 VPATH	+= src/ssdd:
 VPATH	+= src/oslat:
 
 
-$(OBJDIR)/%.o: %.c | $(OBJDIR) 
+$(OBJDIR)/%.o: %.c | $(OBJDIR)
 	$(CC) -D VERSION=$(VERSION) -c $< $(CFLAGS) $(CFLAGS1) $(CPPFLAGS) -o $@
 
 # Pattern rule to generate dependency files from .c files

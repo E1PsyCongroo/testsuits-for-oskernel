@@ -16,6 +16,7 @@ set(BIN_DIR bin)
 
 # Toolchain
 set(PREFIX ${ARCH}-linux-gnu-)
+# set(PREFIX ${ARCH}-unknown-linux-musl-)
 # riscv64-unknown-elf-
 
 if (${ARCH} STREQUAL riscv32)
