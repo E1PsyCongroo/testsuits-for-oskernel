@@ -36,7 +36,7 @@ sdcard: build-all .PHONY
 	mkdir -p mnt
 	guestmount -a sdcard-rv.img -m /dev/sda mnt
 	cp -rL sdcard/riscv/* mnt
-	guestumount mnt
+	guestunmount mnt
 	gzip sdcard-rv.img
 
 	dd if=/dev/zero of=sdcard-la.img count=4096 bs=1M
@@ -44,7 +44,7 @@ sdcard: build-all .PHONY
 	mkdir -p mnt
 	guestmount -a sdcard-la.img -m /dev/sda mnt
 	cp -rL sdcard/loongarch/* mnt
-	guestumount mnt
+	guestunmount mnt
 	gzip sdcard-la.img
 
 
