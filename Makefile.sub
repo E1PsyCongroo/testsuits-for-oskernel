@@ -3,85 +3,131 @@ CC := $(PREFIX)gcc
 HOST := $(patsubst %-gcc,%,$(CC))
 STRIP := $(PREFIX)strip
 DESTDIR ?= /code/sdcard/riscv/glibc
+STAMPDIR ?= build/stamps
 
 ifneq (,$(findstring riscv64,$(PREFIX)))
-    ARCH := riscv64
+	ARCH := riscv64
 else ifneq (,$(findstring loongarch64,$(PREFIX)))
-    ARCH := loongarch64
+	ARCH := loongarch64
 else
-    $(error "Unknown ARCH! It should be riscv64 or loongarch64")
+	$(error "Unknown ARCH! It should be riscv64 or loongarch64")
 endif
 
-all: netperf basic busybox lua libc-test iozone unixbench iperf libcbench lmbench_src cyclictest ltp
+# 创建时间戳目录
+$(STAMPDIR):
+	mkdir -p $(STAMPDIR)
 
-basic: .PHONY
+# 定义子测试列表
+SUBTESTS = netperf basic busybox lua libc-test iozone unixbench iperf libcbench lmbench_src cyclictest ltp
+
+# 各个子测试的时间戳文件
+NETPERF_STAMP = $(STAMPDIR)/netperf.stamp
+BASIC_STAMP = $(STAMPDIR)/basic.stamp
+BUSYBOX_STAMP = $(STAMPDIR)/busybox.stamp
+LUA_STAMP = $(STAMPDIR)/lua.stamp
+LIBC_TEST_STAMP = $(STAMPDIR)/libc-test.stamp
+IOZONE_STAMP = $(STAMPDIR)/iozone.stamp
+UNIXBENCH_STAMP = $(STAMPDIR)/unixbench.stamp
+IPERF_STAMP = $(STAMPDIR)/iperf.stamp
+LIBCBENCH_STAMP = $(STAMPDIR)/libcbench.stamp
+LMBENCH_STAMP = $(STAMPDIR)/lmbench.stamp
+CYCLICTEST_STAMP = $(STAMPDIR)/cyclictest.stamp
+LTP_STAMP = $(STAMPDIR)/ltp.stamp
+
+all: $(NETPERF_STAMP) $(BASIC_STAMP) $(BUSYBOX_STAMP) $(LUA_STAMP) $(LIBC_TEST_STAMP) $(IOZONE_STAMP) $(UNIXBENCH_STAMP) $(IPERF_STAMP) $(LIBCBENCH_STAMP) $(LMBENCH_STAMP) $(CYCLICTEST_STAMP) $(LTP_STAMP)
+
+$(BASIC_STAMP): $(wildcard basic/**/*.h basic/**/*.c) | $(STAMPDIR)
+	@echo "Building basic..."
 	make -C basic/user all CHAPTER=7 ARCH=$(ARCH) -j $(NPROC)
 	mkdir -p $(DESTDIR)/basic
 	cp -r basic/user/build/$(ARCH)/* $(DESTDIR)/basic/
 	cp scripts/basic/basic_testcode.sh $(DESTDIR)
+	touch $@
 
-busybox: .PHONY
+$(BUSYBOX_STAMP): busybox/testsuite | $(STAMPDIR)
+	@echo "Building busybox..."
 	cp config/busybox-config-$(ARCH) busybox/.config
 	make -C busybox CC="$(CC) -static" STRIP=$(STRIP) -j $(NPROC)
 	cp busybox/busybox $(DESTDIR)/
 	cp scripts/busybox/* $(DESTDIR)/
+	touch $@
 
-lua: .PHONY
+$(LUA_STAMP): lua/src/*.c lua/src/*.h | $(STAMPDIR)
+	@echo "Building lua..."
 	make -C lua CC="$(CC) -static" -j $(NPROC)
 	cp lua/src/lua $(DESTDIR)/
 	cp scripts/lua/* $(DESTDIR)/
+	touch $@
 
-libc-test: .PHONY
+$(LIBC_TEST_STAMP): $(wildcard libc-test/**/*.c libc-test/**/*.h) | $(STAMPDIR)
+	echo "Building libc-test..."
 	make -C libc-test disk PREFIX=$(PREFIX) -j 1
 	cp -r libc-test/disk/* $(DESTDIR)/
 	mkdir -p $(DESTDIR)/lib/
 	cp libc-test/src/functional/*.so libc-test/src/regression/*.so $(DESTDIR)/lib
 	rm $(DESTDIR)/run-all.sh
 	cp scripts/libctest/libctest_testcode.sh $(DESTDIR)
+	touch $@
 
-iozone: .PHONY
+$(IOZONE_STAMP): iozone/*.c | $(STAMPDIR)
+	@echo "Building iozone..."
 	make -C iozone linux CC="$(CC)" -j $(NPROC)
 	$(STRIP) iozone/iozone
 	cp iozone/iozone $(DESTDIR)/
 	cp scripts/iozone/* $(DESTDIR)/
+	touch $@
 
-unixbench: .PHONY
+$(UNIXBENCH_STAMP): UnixBench/src/*.c UnixBench/src/*.h | $(STAMPDIR)
+	@echo "Building UnixBench..."
 	mkdir -p UnixBench/pgms
 	make -C UnixBench CC="$(CC)" -j $(NPROC) ARCH=$(ARCH) all
 	cp UnixBench/pgms/* $(DESTDIR)/
 	cp scripts/unixbench/*.sh $(DESTDIR)/
+	touch $@
 
-iperf: .PHONY
+$(IPERF_STAMP): iperf/src/*.c | $(STAMPDIR)
+	@echo "Building iperf..."
 	cd iperf && ./build.sh $(DESTDIR) $(HOST) $(CC)
 	cp scripts/iperf/* $(DESTDIR)/
+	touch $@
 
-libcbench: .PHONY
+$(LIBCBENCH_STAMP): libc-bench/*.c | $(STAMPDIR)
+	@echo "Building libc-bench..."
 	make -C libc-bench CC="$(CC)" -j $(NPROC)
 	$(STRIP) libc-bench/libc-bench
 	cp libc-bench/libc-bench $(DESTDIR)
 	cp scripts/libcbench/* $(DESTDIR)/
+	touch $@
 
-lmbench_src: .PHONY
+$(LMBENCH_STAMP): lmbench_src/src | $(STAMPDIR)
+	@echo "Building lmbench..."
 	make -C lmbench_src CC="$(CC)" -j $(NPROC)
 	find lmbench_src/bin/build -type f -executable -exec cp {} ${DESTDIR}/ \;
 	cp scripts/lmbench/* $(DESTDIR)/
+	touch $@
 
-cyclictest:  .PHONY
+$(CYCLICTEST_STAMP): rt-tests-2.7/src | $(STAMPDIR)
+	@echo "Building cyclictest..."
 	make -C rt-tests-2.7 clean
 	make -C rt-tests-2.7 CROSS_COMPILE=$(PREFIX)
 	cp rt-tests-2.7/cyclictest ${DESTDIR}/
 	cp rt-tests-2.7/hackbench ${DESTDIR}/
 	cp scripts/cyclictest/* $(DESTDIR)/
+	touch $@
 
-ltp: .PHONY
+$(LTP_STAMP): ltp-full-20240524/build-oscomp.sh | $(STAMPDIR)
+	@echo "Building ltp..."
 	cd ltp-full-20240524 && ./build-oscomp.sh $(DESTDIR) $(HOST) $(CC)
 	cp scripts/ltp/* $(DESTDIR)/
+	touch $@
 
-netperf: .PHONY
+$(NETPERF_STAMP): netperf/netperf-2.7.0.tar.gz | $(STAMPDIR)
+	@echo "Building netperf..."
 	cd netperf && rm -fr netperf-2.7.0 && tar zxf netperf-2.7.0.tar.gz
 	cd netperf/netperf-2.7.0 && ./configure --build=$(gcc -dumpmachine) --host=$(HOST) && make -j 8
 	cp netperf/netperf-2.7.0/src/netperf ${DESTDIR}/
 	cp netperf/netperf-2.7.0/src/netserver ${DESTDIR}/
+	touch $@
 
 clean:
 	make -C basic/user clean
@@ -98,4 +144,8 @@ clean:
 	make -C ltp-full-20240524 clean
 	rm -fr netperf/netperf-2.7.0
 
-.PHONY:
+clean-all:
+	@make clean
+	rm -f $(STAMPDIR)/*.stamp
+
+.PHONY: all $(SUBTESTS) clean clean-all
