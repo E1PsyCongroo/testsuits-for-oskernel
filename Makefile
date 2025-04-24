@@ -16,6 +16,18 @@ BUILD_LA_GLIBC = loongarch-la-glibc.stamp
 SDCARD_RV_IMG_GZ = sdcard-rv.img.gz
 SDCARD_LA_IMG_GZ = sdcard-la.img.gz
 
+$(BUILD_DIR)/riscv-musl:
+	mkdir -p $(BUILD_DIR)/riscv-musl
+
+$(BUILD_DIR)/riscv-glibc:
+	mkdir -p $(BUILD_DIR)/riscv-glibc
+
+$(BUILD_DIR)/loongarch-musl:
+	mkdir -p $(BUILD_DIR)/loongarch-musl
+
+$(BUILD_DIR)/loongarch-glibc:
+	mkdir -p $(BUILD_DIR)/loongarch-glibc
+
 build-rv-musl-sub: $(BUILD_DIR)/riscv-musl
 	@echo "Building riscv-musl..."
 	make -f Makefile.sub clean
@@ -41,7 +53,7 @@ $(BUILD_RV_GLIBC): build-rv-glic-sub
 build-rv: $(BUILD_DIR) $(BUILD_RV_MUSL) $(BUILD_RV_GLIBC)
 
 
-build-la-musl-sub: $(BUILD_DIR)/loongarch-musl/*.stamp
+build-la-musl-sub: $(BUILD_DIR)/loongarch-musl
 	@echo "Building loongarch-musl..."
 	make -f Makefile.sub clean
 	mkdir -p sdcard/loongarch/musl
