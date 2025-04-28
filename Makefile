@@ -13,8 +13,8 @@ BUILD_RV_MUSL = riscv-rv-musl.stamp
 BUILD_RV_GLIBC = riscv-rv-glibc.stamp
 BUILD_LA_MUSL = loongarch-la-musl.stamp
 BUILD_LA_GLIBC = loongarch-la-glibc.stamp
-SDCARD_RV_IMG_GZ = sdcard-rv.img.gz
-SDCARD_LA_IMG_GZ = sdcard-la.img.gz
+SDCARD_RV_IMG = sdcard-rv.img
+SDCARD_LA_IMG = sdcard-la.img
 
 $(BUILD_DIR)/riscv-musl:
 	mkdir -p $(BUILD_DIR)/riscv-musl
@@ -77,34 +77,34 @@ $(BUILD_LA_GLIBC): build-la-glibc-sub
 
 build-la: ${BUILD_DIR} $(BUILD_LA_MUSL) $(BUILD_LA_MUSL)
 
-$(SDCARD_RV_IMG_GZ): $(BUILD_DIR) $(BUILD_DIR)/riscv-musl $(BUILD_DIR)/riscv-glibc
+$(SDCARD_RV_IMG): $(BUILD_DIR) $(BUILD_DIR)/riscv-musl $(BUILD_DIR)/riscv-glibc
 	dd if=/dev/zero of=sdcard-rv.img count=4096 bs=1M
 	mkfs.ext4 sdcard-rv.img
 	mkdir -p mnt
 	guestmount -a sdcard-rv.img -m /dev/sda mnt
 	cp -rL sdcard/riscv/* mnt
 	guestunmount mnt
-	rm -f sdcard-rv.img.gz
-	gzip sdcard-rv.img
+	# rm -f sdcard-rv.img.gz
+	# gzip sdcard-rv.img
 
-$(SDCARD_LA_IMG_GZ): $(BUILD_DIR) $(BUILD_DIR)/loongarch-musl $(BUILD_DIR)/loongarch-glibc
+$(SDCARD_LA_IMG): $(BUILD_DIR) $(BUILD_DIR)/loongarch-musl $(BUILD_DIR)/loongarch-glibc
 	dd if=/dev/zero of=sdcard-la.img count=4096 bs=1M
 	mkfs.ext4 sdcard-la.img
 	mkdir -p mnt
 	guestmount -a sdcard-la.img -m /dev/sda mnt
 	cp -rL sdcard/loongarch/* mnt
 	guestunmount mnt
-	rm -f sdcard-la.img.gz
-	gzip sdcard-la.img
+	# rm -f sdcard-la.img.gz
+	# gzip sdcard-la.img
 
-sdcard: $(BUILD_RV_MUSL) $(BUILD_RV_GLIBC) $(BUILD_LA_MUSL) $(BUILD_LA_GLIBC) $(SDCARD_RV_IMG_GZ) $(SDCARD_LA_IMG_GZ)
+sdcard: $(BUILD_RV_MUSL) $(BUILD_RV_GLIBC) $(BUILD_LA_MUSL) $(BUILD_LA_GLIBC) $(SDCARD_RV_IMG) $(SDCARD_LA_IMG)
 
 clean:
 	make -f Makefile.sub clean
 	rm -rf sdcard/riscv/*
 	rm -rf sdcard/loongarch/*
-	rm -f sdcard-la.img.gz
-	rm -f sdcard-rv.img.gz
+	rm -f sdcard-rv.img
+	rm -f sdcard-la.img
 	rm -rf build
 	rm -f $(BUILD_RV_MUSL)
 	rm -f $(BUILD_RV_GLIBC)
