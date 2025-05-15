@@ -2,10 +2,36 @@ DOCKER ?= docker.educg.net/cg/os-contest:20250226
 
 BUILD_DIR = build
 
+BUILD_DIR = build
+
 all: sdcard
 
 build-all: build-rv build-la
 
+${BUILD_DIR}:
+	mkdir -p ${BUILD_DIR}
+
+BUILD_RV_MUSL = riscv-rv-musl.stamp
+BUILD_RV_GLIBC = riscv-rv-glibc.stamp
+BUILD_LA_MUSL = loongarch-la-musl.stamp
+BUILD_LA_GLIBC = loongarch-la-glibc.stamp
+SDCARD_RV_IMG = sdcard-rv.img
+SDCARD_LA_IMG = sdcard-la.img
+
+$(BUILD_DIR)/riscv-musl:
+	mkdir -p $(BUILD_DIR)/riscv-musl
+
+$(BUILD_DIR)/riscv-glibc:
+	mkdir -p $(BUILD_DIR)/riscv-glibc
+
+$(BUILD_DIR)/loongarch-musl:
+	mkdir -p $(BUILD_DIR)/loongarch-musl
+
+$(BUILD_DIR)/loongarch-glibc:
+	mkdir -p $(BUILD_DIR)/loongarch-glibc
+
+build-rv-musl-sub: $(BUILD_DIR)/riscv-musl
+	@echo "Building riscv-musl..."
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
