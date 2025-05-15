@@ -46,8 +46,6 @@ build-rv-glic-sub: $(BUILD_DIR)/riscv-glibc
 	make -f Makefile.sub all PREFIX=riscv64-linux-gnu- DESTDIR=$(CURDIR)/sdcard/riscv/glibc STAMPDIR=$(BUILD_DIR)/riscv-glibc
 
 $(BUILD_RV_GLIBC): build-rv-glic-sub
-	cp /usr/riscv64-linux-gnu/lib/libc.so sdcard/riscv/glibc/lib
-	make -f Makefile.sub PREFIX=riscv64-linux-gnu- DESTDIR=/code/sdcard/riscv/glibc
 	cp /usr/riscv64-linux-gnu/lib/libc.so.6 sdcard/riscv/glibc/lib/libc.so
 	cp /usr/riscv64-linux-gnu/lib/libm.so.6 sdcard/riscv/glibc/lib/libm.so
 	cp /usr/riscv64-linux-gnu/lib/ld-linux-riscv64-lp64d.so.1 sdcard/riscv/glibc/lib/ld-linux-riscv64-lp64d.so.1
@@ -75,8 +73,6 @@ build-la-glibc-sub: $(BUILD_DIR)/loongarch-glibc
 	make -f Makefile.sub all PREFIX=loongarch64-linux-gnu- DESTDIR=$(CURDIR)/sdcard/loongarch/glibc STAMPDIR=$(BUILD_DIR)/loongarch-glibc
 
 $(BUILD_LA_GLIBC): build-la-glibc-sub
-	cp /opt/gcc-13.2.0-loongarch64-linux-gnu/sysroot/usr/lib64/libc.so sdcard/loongarch/glibc/lib
-	make -f Makefile.sub PREFIX=loongarch64-linux-gnu- DESTDIR=$(CURDIR)/sdcard/loongarch/glibc
 	cp /opt/gcc-13.2.0-loongarch64-linux-gnu/sysroot/usr/lib64/libc.so.6 sdcard/loongarch/glibc/lib
 	cp /opt/gcc-13.2.0-loongarch64-linux-gnu/sysroot/usr/lib64/libm.so.6 sdcard/loongarch/glibc/lib
 	cp /opt/gcc-13.2.0-loongarch64-linux-gnu/sysroot/usr/lib64/ld-linux-loongarch-lp64d.so.1 sdcard/loongarch/glibc/lib
