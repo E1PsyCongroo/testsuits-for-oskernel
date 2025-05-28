@@ -25,11 +25,11 @@ RTTESTLIB = -lrttest -L$(OBJDIR)
 EXTRA_LIBS ?= -ldl	# for get_cpu
 
 ifeq ($(CROSS_COMPILE), riscv64-buildroot-linux-musl-)
-LDFLAGS1 +=  -latomic  -static
+LDFLAGS1 +=  -latomic -static
 endif
 
 ifeq ($(CROSS_COMPILE), riscv64-linux-gnu-)
-LDFLAGS1 +=  -latomic  -static
+LDFLAGS1 +=  -latomic -static
 endif
 
 RTTESTNUMA = -lrttestnuma  ./numactl-2.0.14/.libs/libnuma.a $(LDFLAGS1)
@@ -115,12 +115,12 @@ VPATH	+= src/pmqtest:
 VPATH	+= src/lib:
 VPATH	+= src/hackbench:
 VPATH	+= src/sched_deadline:
-VPATH	+= src/queuelat:
+VPATH	+= src/queuelat:	
 VPATH	+= src/ssdd:
 VPATH	+= src/oslat:
 
 
-$(OBJDIR)/%.o: %.c | $(OBJDIR)
+$(OBJDIR)/%.o: %.c | $(OBJDIR) 
 	$(CC) -D VERSION=$(VERSION) -c $< $(CFLAGS) $(CFLAGS1) $(CPPFLAGS) -o $@
 
 # Pattern rule to generate dependency files from .c files

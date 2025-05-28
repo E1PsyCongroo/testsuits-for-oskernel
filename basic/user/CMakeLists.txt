@@ -16,13 +16,12 @@ set(BIN_DIR bin)
 
 # Toolchain
 set(PREFIX ${ARCH}-linux-gnu-)
-# set(PREFIX ${ARCH}-unknown-linux-musl-)
 # riscv64-unknown-elf-
 
 if (${ARCH} STREQUAL riscv32)
     set(CMAKE_C_FLAGS       "-march=rv32imac -mabi=ilp32 -mcmodel=medany")
 elseif (${ARCH} STREQUAL riscv64)
-    set(CMAKE_C_FLAGS       "-march=rv64imac -mabi=lp64 -mcmodel=medany")
+    set(CMAKE_C_FLAGS       "-march=rv64imafdc -mabi=lp64d -mcmodel=medany")
 else()
     message("Unsupported arch: ${ARCH}")
 endif ()
